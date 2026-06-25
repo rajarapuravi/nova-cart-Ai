@@ -2,8 +2,21 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.http import JsonResponse
+
+
+def health(request):
+    return JsonResponse({
+        'status': 'ok',
+        'service': 'NovaCart AI Backend',
+        'version': '1.0.0',
+        'docs': '/api/products/home/'
+    })
+
 
 urlpatterns = [
+    path('', health, name='health'),
+    path('health/', health, name='health2'),
     path('django-admin/', admin.site.urls),
 
     # Customer APIs

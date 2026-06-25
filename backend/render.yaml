@@ -2,19 +2,23 @@ services:
   - type: web
     name: novacart-ai-backend
     env: python
-    buildCommand: "./build.sh"
-    startCommand: "gunicorn novacart_backend.wsgi:application --bind 0.0.0.0:$PORT"
+    rootDir: backend
+    buildCommand: "pip install -r requirements.txt && python manage.py migrate --no-input && python manage.py collectstatic --no-input && python seed_data.py"
+    startCommand: "gunicorn novacart_backend.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --timeout 120"
     envVars:
       - key: SECRET_KEY
         generateValue: true
       - key: DEBUG
         value: "False"
       - key: ALLOWED_HOSTS
-        value: ".onrender.com,localhost"
+        value: ".onrender.com,.netlify.app,localhost,127.0.0.1"
+      - key: PYTHON_VERSION
+        value: "3.11.0"
       - key: OPENAI_API_KEY
         sync: false
       - key: GEMINI_API_KEY
         sync: false
       - key: FRONTEND_URL
         value: "https://novacart-ai.netlify.app"
-    autoDeploy: true
+      - key: EMAIL_BACKEND
+        value: "django.core.mail.backends.console.EmailBackend"
