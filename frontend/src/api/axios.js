@@ -1,11 +1,18 @@
 import axios from 'axios'
 
+// In production (Netlify), VITE_API_BASE_URL points to Render backend.
+// In development, Vite proxy handles /api → localhost:8000.
+const BASE = import.meta.env.VITE_API_BASE_URL
+  ? `${import.meta.env.VITE_API_BASE_URL}/api`
+  : '/api'
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: BASE,
   headers: { 'Content-Type': 'application/json' },
+  withCredentials: false,
 })
 
-// Attach token to every request
+// Attach JWT token to every request
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('access')
   if (token) config.headers.Authorization = `Bearer ${token}`
@@ -21,7 +28,8 @@ api.interceptors.response.use(
       original._retry = true
       try {
         const refresh = localStorage.getItem('refresh')
-        const res = await axios.post('/api/auth/token/refresh/', { refresh })
+        if (!refresh) throw new Error('No refresh token')
+        const res = await axios.post(`${BASE}/auth/token/refresh/`, { refresh })
         localStorage.setItem('access', res.data.access)
         original.headers.Authorization = `Bearer ${res.data.access}`
         return api(original)

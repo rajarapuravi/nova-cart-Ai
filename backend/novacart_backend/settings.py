@@ -179,3 +179,4 @@ CORS_ALLOWED_ORIGIN_REGEXES = [
     r'^https://.*\.netlify\.app$',
     r'^https://.*\.onrender\.com$',
 ]
+CORS_ALLOW_ALL_ORIGINS = DEBUG  # Allow all in dev only
